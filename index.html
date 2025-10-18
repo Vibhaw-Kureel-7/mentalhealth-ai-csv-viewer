@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <title>AI Mental Health Research Papers</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+
     <style>
         body {
             font-family: "Segoe UI", Arial, sans-serif;
@@ -34,6 +36,7 @@
         td {
             font-size: 14px;
             padding: 10px;
+            vertical-align: top;
         }
         tr:hover td {
             background-color: #f1f7ff;
@@ -54,48 +57,53 @@
     </div>
 
     <footer>
-        Interactive + Static Table Viewer | Powered by DataTables.js
+        Interactive + Static Table Viewer | Powered by DataTables & PapaParse
     </footer>
 
-    <!-- jQuery & DataTables -->
+    <!-- jQuery + DataTables + PapaParse -->
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
     <script>
         async function loadCSV() {
-            const response = await fetch('AI_Mental_Health_Research_Papers.csv');
-            const text = await response.text();
+            try {
+                const response = await fetch('AI_Mental_Health_Research_Papers.csv');
+                const csvText = await response.text();
 
-            const rows = text.trim().split('\n').map(r => r.split(','));
-            const headers = rows[0];
-            const data = rows.slice(1);
+                // Parse CSV using PapaParse (handles commas, quotes, etc.)
+                const parsed = Papa.parse(csvText, { header: true });
+                const data = parsed.data;
+                const headers = parsed.meta.fields;
 
-            // Create header HTML
-            let theadHTML = '<thead><tr>';
-            headers.forEach(h => {
-                theadHTML += `<th>${h}</th>`;
-            });
-            theadHTML += '</tr></thead>';
+                // Build HTML
+                let theadHTML = '<thead><tr>';
+                headers.forEach(h => theadHTML += `<th>${h}</th>`);
+                theadHTML += '</tr></thead>';
 
-            // Create body HTML
-            let tbodyHTML = '<tbody>';
-            data.forEach(row => {
-                tbodyHTML += '<tr>';
-                row.forEach(cell => {
-                    tbodyHTML += `<td>${cell}</td>`;
+                let tbodyHTML = '<tbody>';
+                data.forEach(row => {
+                    if (Object.keys(row).length === headers.length) {
+                        tbodyHTML += '<tr>';
+                        headers.forEach(h => tbodyHTML += `<td>${row[h] || ''}</td>`);
+                        tbodyHTML += '</tr>';
+                    }
                 });
-                tbodyHTML += '</tr>';
-            });
-            tbodyHTML += '</tbody>';
+                tbodyHTML += '</tbody>';
 
-            // Insert into table
-            document.getElementById('csvTable').innerHTML = theadHTML + tbodyHTML;
+                // Inject HTML
+                document.getElementById('csvTable').innerHTML = theadHTML + tbodyHTML;
 
-            // Initialize DataTable
-            $('#csvTable').DataTable({
-                pageLength: 10,
-                responsive: true
-            });
+                // Initialize DataTable
+                $('#csvTable').DataTable({
+                    pageLength: 10,
+                    responsive: true
+                });
+
+            } catch (error) {
+                console.error("Error loading CSV:", error);
+                document.body.innerHTML += `<p style="color:red;text-align:center;">Failed to load CSV file. Ensure it's in the same folder.</p>`;
+            }
         }
 
         loadCSV();
