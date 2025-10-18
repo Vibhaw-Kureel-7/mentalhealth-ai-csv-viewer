@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Mental Health Research Papers</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #222;
+            margin-bottom: 30px;
+        }
+        table.dataTable {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+            background: white;
+        }
+        th {
+            background-color: #007bff !important;
+            color: white !important;
+            text-transform: uppercase;
+            font-size: 13px;
+        }
+        td {
+            font-size: 14px;
+            padding: 10px;
+        }
+        tr:hover td {
+            background-color: #f1f7ff;
+        }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 13px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>📘 AI Mental Health Research Papers</h1>
+    <div style="overflow-x:auto;">
+        <table id="csvTable" class="display" style="width:100%"></table>
+    </div>
+
+    <footer>
+        Interactive + Static Table Viewer | Powered by DataTables.js
+    </footer>
+
+    <!-- jQuery & DataTables -->
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        async function loadCSV() {
+            const response = await fetch('AI_Mental_Health_Research_Papers.csv');
+            const text = await response.text();
+
+            const rows = text.trim().split('\n').map(r => r.split(','));
+            const headers = rows[0];
+            const data = rows.slice(1);
+
+            // Create header HTML
+            let theadHTML = '<thead><tr>';
+            headers.forEach(h => {
+                theadHTML += `<th>${h}</th>`;
+            });
+            theadHTML += '</tr></thead>';
+
+            // Create body HTML
+            let tbodyHTML = '<tbody>';
+            data.forEach(row => {
+                tbodyHTML += '<tr>';
+                row.forEach(cell => {
+                    tbodyHTML += `<td>${cell}</td>`;
+                });
+                tbodyHTML += '</tr>';
+            });
+            tbodyHTML += '</tbody>';
+
+            // Insert into table
+            document.getElementById('csvTable').innerHTML = theadHTML + tbodyHTML;
+
+            // Initialize DataTable
+            $('#csvTable').DataTable({
+                pageLength: 10,
+                responsive: true
+            });
+        }
+
+        loadCSV();
+    </script>
+
+</body>
+</html>
